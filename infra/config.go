@@ -1,10 +1,7 @@
 package infra
 
 import (
-	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -14,12 +11,6 @@ type Config struct {
 var config *Config
 
 func LoadConfig() *Config {
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("⚠️  Arquivo .env não encontrado. Usando variáveis de ambiente do sistema.")
-	}
-
 	config = &Config{
 		DBName: getEnv("DB_NAME"),
 	}

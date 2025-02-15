@@ -23,6 +23,10 @@ Parameters:
     NoEcho: true
     Description: Token OAuth @GitHub. (https://github.com/settings/tokens)
 
+  DBName:
+    Type: String
+    Default: finance.db
+    Description: Nome do banco de dados.
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -127,19 +131,18 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: FastAPI-Cluster
+      ClusterName: GoLang-Cluster
 
-  # Task Definition
   ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: FastAPI-Task
+      Family: GoLang-Task
       Cpu: "256"
       Memory: "512"
       NetworkMode: awsvpc
-      RequiresCompatibilities:  # Adiciona compatibilidade Fargate
-      - FARGATE
-      ExecutionRoleArn: !GetAtt ExecutionRole.Arn 
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt ExecutionRole.Arn
       ContainerDefinitions:
         - Name: !Sub ${AWS::StackName}-container-def
           Image: !GetAtt ECRRepository.RepositoryUri
@@ -147,8 +150,14 @@ Resources:
             - ContainerPort: 80
               HostPort: 80
           Essential: true
-      TaskRoleArn: !GetAtt ExecutionRole.Arn  # Adicionando Task Role com as permissões necessárias
-
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub /ecs/${AWS::StackName}-logs
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+      TaskRoleArn: !GetAtt ExecutionRole.Arn
+  
   # ECS Service
   ECSService:
     Type: AWS::ECS::Service
@@ -164,6 +173,14 @@ Resources:
           SecurityGroups:
             - Ref: ApiSecurityGroup
           AssignPublicIp: ENABLED  # Atribui IP público à Task
+
+
+  CloudWatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /ecs/${AWS::StackName}-logs
+      RetentionInDays: 7  # Optional: Set log retention period
+
 
   # ------------------------------
   # RECURSOS IAM
@@ -337,6 +354,9 @@ Resources:
           - Name: CONTAINER_DEFINITION
             Type: PLAINTEXT
             Value: !Sub ${AWS::StackName}-container-def
+          - Name: DB_NAME
+            Type: PLAINTEXT
+            Value: !Ref DBName
       ServiceRole: !GetAtt CodeBuildRole.Arn
 
 
