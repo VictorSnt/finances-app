@@ -1,0 +1,26 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - python3 --version
+
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URI
+      - IMAGE_URI="${ECR_REPO_URI}"
+
+  build:
+    commands:
+      - echo && echo "::::::Application build::::::" && echo
+      - docker build --tag "$IMAGE_URI" .
+      - docker push "$IMAGE_URI"
+      - printf '[{"name":"'"$CONTAINER_DEFINITION"'","imageUri":"%s"}]' "$IMAGE_URI" > imagedefinitions.json
+
+  post_build:
+    commands:
+      - echo "COMPLETED BUILD"
+
+artifacts:
+  files: imagedefinitions.json

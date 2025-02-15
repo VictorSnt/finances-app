@@ -6,7 +6,6 @@ type User struct {
 	ID       int
 	Username string
 	Income   float64
-	Expenses []Expense
 }
 
 func (u *User) Validate() error {

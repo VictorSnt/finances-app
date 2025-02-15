@@ -1,0 +1,396 @@
+basePath: /
+definitions:
+  dto.CreateExpenseDTO:
+    properties:
+      amount:
+        type: number
+      expense_type:
+        $ref: '#/definitions/entities.ExpenseType'
+      name:
+        type: string
+      recurrence:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  dto.CreateUserDTO:
+    properties:
+      income:
+        type: number
+      username:
+        type: string
+    required:
+    - income
+    - username
+    type: object
+  dto.ExpenseDTO:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      expense_id:
+        type: integer
+      expense_type:
+        $ref: '#/definitions/entities.ExpenseType'
+      name:
+        type: string
+      recurrence:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  dto.UpdateExpenseDTO:
+    properties:
+      amount:
+        type: number
+      expense_type:
+        $ref: '#/definitions/entities.ExpenseType'
+      name:
+        type: string
+      recurrence:
+        type: integer
+    type: object
+  dto.UpdateUser:
+    properties:
+      income:
+        type: number
+      username:
+        type: string
+    type: object
+  dto.UserDTO:
+    properties:
+      income:
+        type: number
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  entities.ExpenseType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - FixedCost
+    - Food
+    - Leisure
+    - Investment
+    - MedicalEmergency
+info:
+  contact: {}
+  description: API para gerenciamento financeiro pessoal
+  title: Controle Financeiro API
+  version: "1.0"
+paths:
+  /expenses:
+    post:
+      consumes:
+      - application/json
+      description: Adiciona um novo gasto para um usuário
+      parameters:
+      - description: Dados do gasto
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateExpenseDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Adicionar gasto
+      tags:
+      - expenses
+  /expenses/{id}:
+    delete:
+      description: Remove um gasto pelo ID
+      parameters:
+      - description: ID do gasto
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deletar gasto
+      tags:
+      - expenses
+    get:
+      description: Retorna os detalhes de um gasto pelo ID
+      parameters:
+      - description: ID do gasto
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ExpenseDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Buscar gasto por ID
+      tags:
+      - expenses
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os detalhes de um gasto pelo ID
+      parameters:
+      - description: ID do gasto
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Novos dados do gasto
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateExpenseDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Atualizar gasto
+      tags:
+      - expenses
+  /expenses/total/{id}:
+    get:
+      description: Retorna todos os gastos de um usuário
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Busca todos os gastos de um usuário
+      tags:
+      - expenses
+  /expenses/total/{id}/{type}:
+    get:
+      description: Retorna todos os gastos de um usuário de um determinado tipo
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Tipo do gasto
+        in: path
+        name: type
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Busca todos os gastos de um usuário por tipo
+      tags:
+      - expenses
+  /expenses/user/{userID}:
+    get:
+      description: Retorna todos os gastos de um usuário
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ExpenseDTO'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Buscar gastos de um usuário
+      tags:
+      - expenses
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo usuário no sistema
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.UserDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Criar usuário
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Remove um usuário pelo ID
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Deletar usuário
+      tags:
+      - users
+    get:
+      description: Retorna os detalhes de um usuário pelo ID
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserDTO'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Buscar usuário por ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Atualiza os dados de um usuário pelo ID
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Novos dados do usuário
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Atualizar usuário
+      tags:
+      - users
+swagger: "2.0"

@@ -51,6 +51,14 @@ func (s *UserServiceImp) UpdateUser(userID int, username string, income float64)
 		return err
 	}
 
+	if username == "" {
+		username = user.Username
+	}
+
+	if income == 0 {
+		income = user.Income
+	}
+
 	user.Username = username
 	user.Income = income
 

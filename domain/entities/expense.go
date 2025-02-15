@@ -29,5 +29,9 @@ func (e *Expense) Validate() error {
 		return errors.New("tipo de gasto inválido")
 	}
 
+	if e.RecurrenceInMonths == 0 {
+		return errors.New("recorrência inválida")
+	}
+
 	return nil
 }
