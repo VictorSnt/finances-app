@@ -25,6 +25,11 @@ func SetupRouter(
 		userRoutes.GET("/:id", userHandler.GetUserByID)
 		userRoutes.PUT("/:id", userHandler.UpdateUser)
 		userRoutes.DELETE("/:id", userHandler.DeleteUser)
+		userRoutes.GET("/ping", func(ctx *gin.Context) {
+			ctx.JSON(200, gin.H{
+				"message": "pong",
+			})
+		})
 	}
 
 	expenseRoutes := r.Group("/expenses")
